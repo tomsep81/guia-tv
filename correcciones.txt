@@ -1,0 +1,26 @@
+# Correcciones manuales de categoría.
+# Formato:  Título = Categoría
+# - Basta con el comienzo del título ("24 Horas" sirve para "24 Horas Central").
+# - Mayúsculas y tildes no importan.
+# - Categorías válidas: Películas, Series, Deportes, Noticias, Documentales,
+#   Infantil, Música, Entretenimiento, Cultura y educación, Política, Religión, Otros
+# - Las líneas que empiezan con # son comentarios.
+
+Pampa Ilusión = Series
+Aquelarre = Series
+MasterChef = Entretenimiento
+¡Ahora caigo! = Entretenimiento
+Buenos Días a Todos = Entretenimiento
+Chile Conectado = Cultura y educación
+24 AM = Noticias
+24 Tarde = Noticias
+24 Noche = Noticias
+Programa Pagado = Otros
+Agenda económica = Noticias
+Avenida Brasil = Series
+La promesa = Series
+Caso Cerrado = Entretenimiento
+Hora 24 = Noticias
+Previa 24 = Noticias
+TV Tiempo = Noticias
+Frutos del País = Cultura y educación
