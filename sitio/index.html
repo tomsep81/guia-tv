@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guía TV</title>
+<meta name="description" content="Programación diaria de canales en español disponibles en streaming.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fondo: #F3F5F9;
+  --superficie: #FFFFFF;
+  --tinta: #1A2233;
+  --tenue: #5B6577;
+  --linea: #D9DEE7;
+  --senal: #B26B00;
+  --sobre-senal: #FFFFFF;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --fondo: #0F1B2E;
+    --superficie: #16243B;
+    --tinta: #E8EDF5;
+    --tenue: #98A5BA;
+    --linea: #263552;
+    --senal: #F2B33D;
+    --sobre-senal: #1A1405;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --fondo: #0F1B2E;
+  --superficie: #16243B;
+  --tinta: #E8EDF5;
+  --tenue: #98A5BA;
+  --linea: #263552;
+  --senal: #F2B33D;
+  --sobre-senal: #1A1405;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--tinta);
+  font: 400 16px/1.5 "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--senal); outline-offset: 2px; }
+
+.contenedor { max-width: 760px; margin: 0 auto; padding: 0 16px; }
+
+/* Cabecera fija: marca, búsqueda, días y categorías */
+.cabecera {
+  position: sticky; top: 0; z-index: 5;
+  background: var(--fondo);
+  border-bottom: 1px solid var(--linea);
+  padding-top: 12px;
+}
+.marca { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.marca h1 {
+  margin: 0;
+  font: 700 30px/1 "Barlow Condensed", sans-serif;
+  letter-spacing: 0.01em;
+}
+.actualizada { color: var(--tenue); font-size: 13px; }
+
+.buscador { margin: 12px 0 10px; position: relative; }
+.buscador input {
+  width: 100%;
+  padding: 11px 40px 11px 14px;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  background: var(--superficie);
+}
+.buscador input::placeholder { color: var(--tenue); }
+.buscador input::-webkit-search-cancel-button { display: none; }
+.limpiar {
+  position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border: 0; border-radius: 8px;
+  background: transparent; color: var(--tenue); cursor: pointer; font-size: 20px; line-height: 1;
+}
+
+.fila {
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+  padding-bottom: 10px; margin: 0 -16px; padding-left: 16px; padding-right: 16px;
+}
+.fila::-webkit-scrollbar { display: none; }
+
+.dia {
+  flex: none; border: 0; background: transparent; cursor: pointer;
+  padding: 4px 10px 6px; border-radius: 8px;
+  font: 600 18px/1.1 "Barlow Condensed", sans-serif; color: var(--tenue);
+}
+.dia[aria-pressed="true"] { color: var(--tinta); box-shadow: inset 0 -3px 0 var(--senal); border-radius: 0; }
+
+.categoria {
+  flex: none; cursor: pointer;
+  padding: 5px 12px; border-radius: 999px;
+  border: 1px solid var(--linea); background: var(--superficie);
+  font-size: 14px;
+}
+.categoria span { color: var(--tenue); margin-left: 4px; }
+.categoria[aria-pressed="true"] { background: var(--tinta); color: var(--fondo); border-color: var(--tinta); }
+.categoria[aria-pressed="true"] span { color: inherit; opacity: .75; }
+
+/* Lista de programas */
+.lista { list-style: none; margin: 0; padding: 0 0 48px; }
+.encabezado-dia {
+  margin: 22px 0 4px;
+  font: 700 20px/1.2 "Barlow Condensed", sans-serif;
+}
+.programa {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 4px 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--linea);
+}
+.hora {
+  font: 600 26px/1 "Barlow Condensed", sans-serif;
+  font-variant-numeric: tabular-nums;
+  padding-top: 2px;
+}
+.hora small { display: block; margin-top: 4px; font-size: 15px; color: var(--tenue); font-weight: 500; }
+.programa.en-vivo .hora { color: var(--senal); }
+
+.canal { display: flex; align-items: center; gap: 8px; color: var(--tenue); font-size: 14px; }
+.canal img { width: 22px; height: 22px; object-fit: contain; border-radius: 4px; background: #fff; }
+.titulo { margin: 2px 0 0; font-size: 18px; font-weight: 700; line-height: 1.3; }
+.episodio { margin: 2px 0 0; color: var(--tenue); font-size: 14px; }
+
+.etiquetas { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; font-size: 13px; }
+.tipo { color: var(--tenue); }
+.ahora {
+  background: var(--senal); color: var(--sobre-senal);
+  padding: 1px 8px; border-radius: 4px; font-weight: 700;
+}
+.progreso { height: 3px; background: var(--linea); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+.progreso i { display: block; height: 100%; background: var(--senal); }
+
+details { margin-top: 6px; }
+summary { cursor: pointer; color: var(--tenue); font-size: 14px; width: fit-content; }
+details p { margin: 6px 0 0; max-width: 64ch; }
+
+.acciones { display: none; gap: 8px; margin-top: 10px; }
+@media (hover: hover) and (pointer: fine) {
+  .acciones { display: flex; }
+}
+.boton {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px; cursor: pointer; text-decoration: none;
+  font-size: 14px; font-weight: 700;
+  border: 1px solid var(--linea); background: var(--superficie); color: var(--tinta);
+}
+.boton.principal { background: var(--senal); border-color: var(--senal); color: var(--sobre-senal); }
+.boton:hover { filter: brightness(1.05); }
+
+.mensaje { padding: 48px 0; color: var(--tenue); text-align: center; }
+.mas { display: block; margin: 20px auto 0; }
+
+.aviso {
+  position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+  background: var(--tinta); color: var(--fondo);
+  padding: 10px 16px; border-radius: 10px; font-size: 14px;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.aviso.visible { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .aviso { transition: none; } }
+</style>
+</head>
+<body>
+<header class="cabecera">
+  <div class="contenedor">
+    <div class="marca">
+      <h1>Guía TV</h1>
+      <span class="actualizada" id="actualizada"></span>
+    </div>
+    <div class="buscador">
+      <input id="busqueda" type="search" placeholder="Buscar título, actor, canal o palabra" aria-label="Buscar programas" autocomplete="off">
+      <button class="limpiar" id="limpiar" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+    </div>
+    <nav class="fila" id="dias" aria-label="Días"></nav>
+    <nav class="fila" id="categorias" aria-label="Categorías"></nav>
+  </div>
+</header>
+
+<main class="contenedor">
+  <ul class="lista" id="lista" aria-live="polite"></ul>
+  <button class="boton mas" id="mas" type="button" hidden>Mostrar más programas</button>
+</main>
+
+<div class="aviso" id="aviso" role="status"></div>
+
+<script>
+// Rutas donde puede estar la guía: publicada (junto a la página) o en la prueba local.
+const RUTAS_GUIA = ["guia.json", "../datos/guia.json"];
+const POR_PAGINA = 150;
+const DIAS_SEMANA = ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"];
+
+const estado = { dia: null, categoria: "Todas", busqueda: "", mostrar: POR_PAGINA };
+let guia = null;
+
+const $ = (id) => document.getElementById(id);
+const escapar = (t) => String(t ?? "").replace(/[&<>"']/g, (c) =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const normalizar = (t) => String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+// Las fechas vienen como "2026-10-26T20:00-03:00" (hora de Chile).
+const fechaDe = (iso) => iso.slice(0, 10);
+const horaDe = (iso) => iso.slice(11, 16);
+
+function hoyEnChile() {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Santiago" }).format(new Date());
+}
+
+function nombreDia(fecha, hoy) {
+  const manana = new Date(hoy + "T12:00:00");
+  manana.setDate(manana.getDate() + 1);
+  if (fecha === hoy) return "Hoy";
+  if (fecha === manana.toISOString().slice(0, 10)) return "Mañana";
+  const d = new Date(fecha + "T12:00:00");
+  return `${DIAS_SEMANA[d.getDay()]} ${d.getDate()}`;
+}
+
+async function cargar() {
+  for (const ruta of RUTAS_GUIA) {
+    try {
+      const r = await fetch(ruta, { cache: "no-cache" });
+      if (r.ok) return await r.json();
+    } catch (e) { /* probar la siguiente ruta */ }
+  }
+  throw new Error("No se encontró guia.json");
+}
+
+function preparar(datos) {
+  for (const p of datos.programas) {
+    const canal = datos.canales[p.c];
+    p.inicio = new Date(p.i).getTime();
+    p.fin = new Date(p.f).getTime();
+    p.texto = normalizar([p.t, p.e, p.d, p.k, canal.nombre].join(" "));
+  }
+  return datos;
+}
+
+// Enlace que abre el canal en VLC (se configura en Windows en el paso 9)
+function enlaceVLC(canal) {
+  const params = new URLSearchParams({ u: canal.url });
+  for (const op of canal.opciones_vlc || []) {
+    const [clave, ...resto] = op.split("=");
+    if (clave === "http-referrer") params.set("r", resto.join("="));
+    if (clave === "http-user-agent") params.set("a", resto.join("="));
+  }
+  return "guiatv-vlc://abrir?" + params.toString();
+}
+
+function programasVisibles() {
+  const ahora = Date.now();
+  const q = normalizar(estado.busqueda.trim());
+  let lista = guia.programas.filter((p) => p.fin > ahora);
+  if (q) {
+    const palabras = q.split(/\s+/);
+    lista = lista.filter((p) => palabras.every((w) => p.texto.includes(w)));
+  } else {
+    lista = lista.filter((p) => fechaDe(p.i) === estado.dia);
+  }
+  return lista;
+}
+
+function pintarDias(fechas, hoy) {
+  $("dias").innerHTML = fechas.map((f) =>
+    `<button class="dia" type="button" data-dia="${f}" aria-pressed="${f === estado.dia && !estado.busqueda}">${nombreDia(f, hoy)}</button>`
+  ).join("");
+}
+
+function pintarCategorias(base) {
+  const cuenta = {};
+  for (const p of base) cuenta[p.k] = (cuenta[p.k] || 0) + 1;
+  const botones = [["Todas", base.length], ...guia.categorias.filter((c) => cuenta[c]).map((c) => [c, cuenta[c]])];
+  if (estado.categoria !== "Todas" && !cuenta[estado.categoria]) {
+    botones.push([estado.categoria, 0]);
+  }
+  $("categorias").innerHTML = botones.map(([c, n]) =>
+    `<button class="categoria" type="button" data-categoria="${escapar(c)}" aria-pressed="${c === estado.categoria}">${escapar(c)}<span>${n}</span></button>`
+  ).join("");
+}
+
+function tarjeta(p, ahora) {
+  const canal = guia.canales[p.c];
+  const enVivo = p.inicio <= ahora && ahora < p.fin;
+  const avance = enVivo ? Math.round(100 * (ahora - p.inicio) / (p.fin - p.inicio)) : 0;
+  const logo = canal.logo ? `<img src="${escapar(canal.logo)}" alt="" loading="lazy" onerror="this.remove()">` : "";
+  return `<li class="programa${enVivo ? " en-vivo" : ""}">
+    <div class="hora">${horaDe(p.i)}<small>${horaDe(p.f)}</small></div>
+    <div>
+      <div class="canal">${logo}${escapar(canal.nombre)}</div>
+      <p class="titulo">${escapar(p.t)}</p>
+      ${p.e ? `<p class="episodio">${escapar(p.e)}</p>` : ""}
+      <div class="etiquetas">
+        ${enVivo ? `<span class="ahora">Ahora</span>` : ""}
+        <span class="tipo">${escapar(p.k)}</span>
+      </div>
+      ${enVivo ? `<div class="progreso" aria-hidden="true"><i style="width:${avance}%"></i></div>` : ""}
+      ${p.d ? `<details><summary>Descripción</summary><p>${escapar(p.d)}</p></details>` : ""}
+      <div class="acciones">
+        <a class="boton principal" href="${escapar(enlaceVLC(canal))}">Ver en VLC</a>
+        <button class="boton" type="button" data-copiar="${p.c}">Copiar enlace</button>
+      </div>
+    </div>
+  </li>`;
+}
+
+function pintar() {
+  const ahora = Date.now();
+  const hoy = hoyEnChile();
+  const fechas = [...new Set(guia.programas.filter((p) => p.fin > ahora).map((p) => fechaDe(p.i)))].sort();
+  if (!fechas.includes(estado.dia)) estado.dia = fechas[0] || hoy;
+
+  pintarDias(fechas, hoy);
+  const base = programasVisibles();
+  pintarCategorias(base);
+
+  const lista = estado.categoria === "Todas" ? base : base.filter((p) => p.k === estado.categoria);
+  const visibles = lista.slice(0, estado.mostrar);
+
+  if (!lista.length) {
+    $("lista").innerHTML = `<li class="mensaje">${estado.busqueda
+      ? "Ningún programa coincide con la búsqueda. Prueba con otra palabra o borra la búsqueda."
+      : "No hay programas en esta categoría para este día. Elige otra categoría u otro día."}</li>`;
+  } else {
+    let html = "", diaActual = null;
+    for (const p of visibles) {
+      if (estado.busqueda && fechaDe(p.i) !== diaActual) {
+        diaActual = fechaDe(p.i);
+        html += `<li><h2 class="encabezado-dia">${nombreDia(diaActual, hoy)}</h2></li>`;
+      }
+      html += tarjeta(p, ahora);
+    }
+    $("lista").innerHTML = html;
+  }
+  $("mas").hidden = lista.length <= estado.mostrar;
+}
+
+function avisar(texto) {
+  const a = $("aviso");
+  a.textContent = texto;
+  a.classList.add("visible");
+  clearTimeout(avisar.t);
+  avisar.t = setTimeout(() => a.classList.remove("visible"), 2200);
+}
+
+$("dias").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-dia]");
+  if (!b) return;
+  estado.dia = b.dataset.dia;
+  estado.busqueda = "";
+  $("busqueda").value = "";
+  $("limpiar").hidden = true;
+  estado.mostrar = POR_PAGINA;
+  pintar();
+});
+
+$("categorias").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-categoria]");
+  if (!b) return;
+  estado.categoria = b.dataset.categoria;
+  estado.mostrar = POR_PAGINA;
+  pintar();
+});
+
+let pausa;
+$("busqueda").addEventListener("input", (e) => {
+  clearTimeout(pausa);
+  pausa = setTimeout(() => {
+    estado.busqueda = e.target.value;
+    $("limpiar").hidden = !e.target.value;
+    estado.mostrar = POR_PAGINA;
+    pintar();
+  }, 200);
+});
+
+$("limpiar").addEventListener("click", () => {
+  $("busqueda").value = "";
+  estado.busqueda = "";
+  $("limpiar").hidden = true;
+  pintar();
+  $("busqueda").focus();
+});
+
+$("mas").addEventListener("click", () => {
+  estado.mostrar += POR_PAGINA;
+  pintar();
+});
+
+$("lista").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-copiar]");
+  if (!b) return;
+  const url = guia.canales[Number(b.dataset.copiar)].url;
+  try {
+    await navigator.clipboard.writeText(url);
+    avisar("Enlace copiado. En VLC: Medio → Abrir ubicación de red (Ctrl + N)");
+  } catch {
+    prompt("Copia este enlace:", url);
+  }
+});
+
+cargar().then((datos) => {
+  guia = preparar(datos);
+  const g = new Date(guia.generado);
+  $("actualizada").textContent = "Actualizada " + g.toLocaleString("es-CL", {
+    timeZone: "America/Santiago", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit",
+  });
+  pintar();
+  // Refresca "Ahora" cada minuto (salvo si estás leyendo una descripción)
+  setInterval(() => { if (!document.querySelector("details[open]")) pintar(); }, 60 * 1000);
+}).catch(() => {
+  $("lista").innerHTML = `<li class="mensaje">No se pudo cargar la guía. Revisa que el archivo guia.json exista y vuelve a abrir la página.</li>`;
+});
+</script>
+</body>
+</html>
