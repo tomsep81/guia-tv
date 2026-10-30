@@ -1,0 +1,80 @@
+name: Actualizar guía
+
+on:
+  schedule:
+    - cron: "0 10 * * *"   # 10:00 UTC = 7:00 en Chile (horario de verano, UTC-3)
+  workflow_dispatch:        # permite ejecutarla a mano desde GitHub
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: write
+
+concurrency:
+  group: guia
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    environment:
+      name: github-pages
+      url: ${{ steps.publicar.outputs.page_url }}
+    steps:
+      - name: Descargar el proyecto
+        uses: actions/checkout@v7
+
+      - name: Preparar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Instalar la herramienta de guías de iptv-org
+        run: |
+          git clone --depth 1 -b master https://github.com/iptv-org/epg.git herramienta-epg
+          cd herramienta-epg
+          npm install --no-audit --no-fund
+
+      - name: 1. Descargar la lista de canales en español
+        run: python paso4_canales.py
+
+      - name: 2. Verificar qué streams funcionan
+        run: python paso9_verificar.py
+
+      - name: 3. Buscar fuentes de guía
+        run: python paso5_guias.py
+
+      - name: 4. Preparar la lista de canales con guía
+        run: python paso6_lista_guias.py
+
+      - name: 5. Descargar la programación (puede tardar)
+        working-directory: herramienta-epg
+        run: npm run grab --- --channels=../datos/guia.channels.xml --output=../datos/guia.xml --days=7 --maxConnections=10 --timeout=20000
+
+      - name: 6. Procesar y clasificar los programas
+        run: python paso7_procesar.py datos/guia.xml
+
+      - name: Preparar la página
+        run: cp datos/guia.json sitio/guia.json
+
+      - name: Subir la página
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: sitio
+
+      - name: Publicar en GitHub Pages
+        id: publicar
+        uses: actions/deploy-pages@v5
+
+      - name: Mantener activa la tarea diaria
+        if: github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${{ github.repository }}/actions/workflows/guia.yml/enable"
