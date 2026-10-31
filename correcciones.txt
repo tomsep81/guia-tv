@@ -24,3 +24,7 @@ Hora 24 = Noticias
 Previa 24 = Noticias
 TV Tiempo = Noticias
 Frutos del País = Cultura y educación
+The Walking Dead = Series
+Vecinos = Series
+Quiz Time = Entretenimiento
+Tarotéame = Entretenimiento
