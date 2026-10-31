@@ -56,4 +56,7 @@ $argumentos = @('--one-instance', "`"$url`"")
 if ($p['r'] -and $p['r'] -notmatch '"') { $argumentos += "`":http-referrer=$($p['r'])`"" }
 if ($p['a'] -and $p['a'] -notmatch '"') { $argumentos += "`":http-user-agent=$($p['a'])`"" }
 
+# Reserva de video: VLC acumula 3 segundos antes de reproducir (menos cortes)
+$argumentos += '":network-caching=3000"'
+
 Start-Process -FilePath $vlc -ArgumentList ($argumentos -join ' ')
