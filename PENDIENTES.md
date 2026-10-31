@@ -1,11 +1,35 @@
-# Pendientes del proyecto Guía TV
+# Proyecto Guía TV
 
 ## Estado actual
-- Pasos 1 al 9 completos y probados con los canales de Chile.
-- Siguiente: paso 10, automatizar con GitHub Actions y publicar en GitHub Pages
-  (https://tomsep81.github.io/guia-tv/) para todos los canales en español.
+- Proyecto completo (pasos 1 al 10).
+- Guía publicada en: https://tomsep81.github.io/guia-tv/
+- Se actualiza sola cada día cerca de las 7:00 (hora de Chile en horario de verano;
+  6:00 en invierno), con GitHub Actions. El PC no necesita estar encendido.
+- Primera ejecución completa (30-10-2026): 383 canales, unos 33.000 programas.
 
-## Para ver la guía en el PC (mientras no esté el paso 10)
+## Uso diario
+- Consultar la guía: abrir https://tomsep81.github.io/guia-tv/ en el celular o el PC.
+- Ver un canal (solo en el PC): botón "Ver en VLC".
+  - Usa windows/abrir_vlc.ps1, con 3 segundos de reserva (:network-caching=3000).
+  - Si un canal se ve ralentizado, probar 5000 en esa línea.
+  - Si se cambia la carpeta del proyecto de lugar, volver a ejecutar:
+    powershell -ExecutionPolicy Bypass -File windows\instalar_enlace_vlc.ps1
+
+## Mantenimiento
+- Corregir la categoría de un programa: agregar una línea en correcciones.txt
+  ("Título = Categoría") y subir a GitHub. Se aplica en la siguiente actualización.
+- Actualizar la guía a mano: GitHub > pestaña Actions > "Actualizar guía" > Run workflow.
+- Si una actualización falla, GitHub envía un correo. La página sigue mostrando la
+  última guía publicada. Revisar el paso con X en Actions.
+- GitHub desactiva las tareas programadas tras 60 días sin cambios; el paso
+  "Mantener activa la tarea diaria" lo evita. Si aun así se desactiva, llega un
+  correo y se reactiva con un clic en Actions.
+
+## Respaldar cambios
+VS Code > Control de código fuente (Ctrl + Shift + G) > escribir mensaje >
+Confirmación > Sincronizar cambios.
+
+## Probar en el PC (opcional, solo canales de Chile)
 1. python paso4_canales.py
 2. python paso9_verificar.py
 3. cd C:\Proyectos\epg
@@ -16,19 +40,7 @@
 5. python -m http.server 8000  ->  abrir http://localhost:8000/sitio/
    (detener con Ctrl + C)
 
-## Canales que se ven "ralentizados" en VLC
-Causas: servidor del canal lento o saturado, calidad alta (1080p) para la
-conexión o Wi-Fi, o reserva de video de VLC muy pequeña (1 segundo por defecto).
-
-Qué probar:
-- Aumentar la reserva de VLC: Herramientas > Preferencias > Mostrar ajustes: "Todo"
-  > Entrada / Códecs > "Caché de red (ms)": cambiar 1000 por 3000 > Guardar.
-- Diagnosticar: Herramientas > Información de códec > Estadísticas.
-  Si "Cuadros perdidos" sube siempre en un mismo canal, es su servidor.
-  Si todos los canales fallan a la vez, revisar la conexión.
-
-## Mejoras pendientes
-- Agregar la reserva de red (:network-caching=3000) directamente al botón
-  "Ver en VLC" (archivo windows/abrir_vlc.ps1).
-- Revisar títulos en "Otros" y agregarlos a correcciones.txt
-  (por ejemplo, películas como "Las momias de Guanajuato" o "La tumba del Diablo").
+## Ideas para más adelante
+- Canales favoritos en la guía.
+- Seguir mejorando la clasificación (revisar "Otros").
+- Ajustes de diseño de la página.
